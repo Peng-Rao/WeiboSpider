@@ -1,7 +1,7 @@
 import json
 from scrapy import Spider
 from scrapy.http import Request
-# from spiders.comment import parse_user_info
+from .comment import parse_user_info
 
 
 class FanSpider(Spider):
