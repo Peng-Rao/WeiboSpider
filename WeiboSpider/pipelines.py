@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine, Column, String, Integer, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.types import BIGINT, Boolean, Text
+from sqlalchemy.types import BIGINT, Boolean, Text, DateTime, BigInteger
 from itemadapter import ItemAdapter
+import datetime
 import time
 
 Base = declarative_base()
@@ -60,6 +61,33 @@ class Fan(Base):
     credit_score = Column(Integer)
     created_at = Column(String(50))
 
+class WeiboPost(Base):
+    """
+    微博推文信息
+    """
+    __tablename__ = 'weibo_posts'
+
+    _id = Column(BigInteger, primary_key=True)
+    user_id = Column(String(20))
+    crawl_time = Column(BIGINT)
+    mblogid = Column(String(50), nullable=False)
+    created_at = Column(DateTime)
+    geo = Column(String(100))
+    ip_location = Column(String(100))
+    reposts_count = Column(Integer)
+    comments_count = Column(Integer)
+    attitudes_count = Column(Integer)
+    source = Column(String(100))
+    content = Column(Text)
+    pic_urls = Column(Text)
+    pic_num = Column(Integer)
+    video = Column(String(250))
+    video_online_numbers = Column(Integer)
+    isLongText = Column(Boolean)
+    is_retweet = Column(Boolean)
+    retweet_id = Column(String(50))
+    url = Column(String(250))
+
 engine = create_engine('mysql+mysqlconnector://root:123456@localhost:3306/zyq')
 Base.metadata.create_all(engine)  # 创建表格，如果表已存在，则忽略
 Session = sessionmaker(bind=engine)
@@ -98,6 +126,8 @@ class SQLAlchemyPipeline:
                 credit_score=item['fan_info'].get('credit_score', 0),
                 created_at=item['fan_info']['created_at']
             )
+        if spider.name == 'tweet_spider_by_user_id':
+            entity = WeiboPost(**item)
         self.session.add(entity)
         self.session.commit()
         return item
